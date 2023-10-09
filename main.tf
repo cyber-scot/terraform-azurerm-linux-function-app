@@ -1,288 +1,295 @@
-resource "azurerm_windows_function_app" "function_app" {
-  for_each                      = { for fnc in var.linux_function_apps : fnc.name => fnc }
-  name                          = each.value.name
-  service_plan_id               = each.value.service_plan_id
-  location                      = each.value.location
-  resource_group_name           = each.value.rg_name
-  app_settings                  = each.value.app_settings
-  tags                          = each.value.tags
-  https_only                    = each.value.https_only
-  builtin_logging_enabled       = each.value.builtin_logging_enabled
-  client_certificate_enabled    = each.value.client_certificate_enabled
-  client_certificate_mode       = each.value.client_certificate_mode
-  daily_memory_time_quota       = each.value.daily_memory_time_quota
-  enabled                       = each.value.enabled
-  functions_extension_version   = each.value.functions_extension_version
-  storage_account_name          = each.value.storage_account_name != null ? each.value.storage_account_name : null
-  storage_account_access_key    = each.value.storage_account_access_key
+resource "azurerm_service_plan" "service_plan" {
+  for_each            = { for app in var.linux_function_apps : app.name => app if app.app_service_plan_name != null }
+  name                = each.value.app_service_plan_name != null ? each.value.app_service_plan_name : "asp-${each.value.name}"
+  resource_group_name = each.value.rg_name
+  location            = each.value.location
+  os_type             = each.value.os_type != null ? each.value.os_type : "Linux"
+  sku_name            = each.value.sku_name
+}
+
+resource "azurerm_linux_function_app" "function_app" {
+  for_each = { for app in var.linux_function_apps : app.name => app }
+  name                        = each.value.name
+  service_plan_id             = each.value.service_plan_id != null ? each.value.service_plan_id : azurerm_service_plan.service_plan[each.key].id
+  location                    = each.value.location
+  resource_group_name         = each.value.rg_name
+  app_settings                = each.value.app_settings
+  https_only                  = each.value.https_only
+  tags                        = each.value.tags
+  builtin_logging_enabled     = each.value.builtin_logging_enabled
+  client_certificate_enabled  = each.value.client_certificate_enabled
+  client_certificate_mode     = each.value.client_certificate_mode
+  daily_memory_time_quota     = each.value.daily_memory_time_quota
+  enabled                     = each.value.enabled
+  functions_extension_version = each.value.functions_extension_version
+
+  storage_account_name       = each.value.storage_account_name != null ? each.value.storage_account_name : null
+  storage_account_access_key = each.value.storage_account_access_key
+
   storage_key_vault_secret_id   = each.value.storage_account_name == null ? each.value.storage_key_vault_secret_id : null
   storage_uses_managed_identity = each.value.storage_account_access_key == null ? each.value.storage_uses_managed_identity : null
 
+  dynamic "identity" {
+        for_each = each.value.identity_type == "SystemAssigned" ? [each.value.identity_type] : []
+        content {
+          type = each.value.identity_type
+        }
+      }
+
+      dynamic "identity" {
+        for_each = each.value.identity_type == "SystemAssigned, UserAssigned" ? [each.value.identity_type] : []
+        content {
+          type         = each.value.identity_type
+          identity_ids = try(each.value.identity_ids, [])
+        }
+      }
+
+      dynamic "identity" {
+        for_each = each.value.identity_type == "UserAssigned" ? [each.value.identity_type] : []
+        content {
+          type         = each.value.identity_type
+          identity_ids = length(try(each.value.identity_ids, [])) > 0 ? each.value.identity_ids : []
+        }
+      }
+
   dynamic "site_config" {
-    for_each = each.value.site_config != null ? [each.value.site_config] : []
+    for_each = each.value.site_settings != null ? [each.value.site_settings] : []
 
     content {
-      always_on                              = lookup(var.settings.site_config, "always_on", false)
-      api_definition_url                     = lookup(var.settings.site_config, "api_definition_url", null)
-      api_management_api_id                  = lookup(var.settings.site_config, "api_management_api_id", null)
-      app_command_line                       = lookup(var.settings.site_config, "app_command_line", null)
-      application_insights_connection_string = lookup(var.settings.site_config, "application_insights_connection_string", null)
-      application_insights_key               = lookup(var.settings.site_config, "application_insights_key", null)
-      elastic_instance_minimum               = lookup(var.settings.site_config, "elastic_instance_minimum", null)
-      ftps_state                             = lookup(var.settings.site_config, "ftps_state", null)
-      health_check_path                      = lookup(var.settings.site_config, "health_check_path", null)
-      health_check_eviction_time_in_min      = lookup(var.settings.site_config, "health_check_eviction_time_in_min", null)
-      http2_enabled                          = lookup(var.settings.site_config, "http2_enabled", null)
-      load_balancing_mode                    = lookup(var.settings.site_config, "load_balancing_mode", null)
-      managed_pipeline_mode                  = lookup(var.settings.site_config, "managed_pipeline_mode", null)
-      minimum_tls_version                    = lookup(var.settings.site_config, "minimum_tls_version", null)
-      pre_warmed_instance_count              = lookup(var.settings.site_config, "pre_warmed_instance_count", null)
-      remote_debugging_enabled               = lookup(var.settings.site_config, "remote_debugging_enabled", null)
-      remote_debugging_version               = lookup(var.settings.site_config, "remote_debugging_version", null)
-      runtime_scale_monitoring_enabled       = lookup(var.settings.site_config, "runtime_scale_monitoring_enabled", null)
-      scm_minimum_tls_version                = lookup(var.settings.site_config, "scm_minimum_tls_version", null)
-      scm_use_main_ip_restriction            = lookup(var.settings.site_config, "scm_use_main_ip_restriction", null)
-      use_32_bit_worker                      = lookup(var.settings.site_config, "use_32_bit_worker", null)
-      app_scale_limit                        = lookup(var.settings.site_config, "app_scale_limit", null)
-      websockets_enabled                     = lookup(var.settings.site_config, "websockets_enabled", null)
-      vnet_route_all_enabled                 = lookup(var.settings.site_config, "vnet_route_all_enabled", null)
-      worker_count                           = lookup(var.settings.site_config, "worker_count", null)
-      default_documents                      = [lookup(var.settings.site_config, "default_documents", false)]
+      always_on                                     = site_config.value.always_on
+      api_definition_url                            = site_config.value.api_definition_url
+      api_management_api_id                         = site_config.value.api_management_api_id
+      app_command_line                              = site_config.value.app_command_line
+      application_insights_connection_string        = site_config.value.application_insights_connection_string
+      application_insights_key                      = site_config.value.application_insights_key
+      container_registry_managed_identity_client_id = site_config.value.container_registry_managed_identity_client_id
+      container_registry_use_managed_identity       = site_config.value.container_registry_use_managed_identity
+      elastic_instance_minimum                      = site_config.value.elastic_instance_minimum
+      ftps_state                                    = site_config.value.ftps_state
+      health_check_path                             = site_config.value.health_check_path
+      health_check_eviction_time_in_min             = site_config.value.health_check_eviction_time_in_min
+      http2_enabled                                 = site_config.value.http2_enabled
+      load_balancing_mode                           = site_config.value.load_balancing_mode
+      managed_pipeline_mode                         = site_config.value.managed_pipeline_mode
+      minimum_tls_version                           = site_config.value.minimum_tls_version
+      pre_warmed_instance_count                     = site_config.value.pre_warmed_instance_count
+      remote_debugging_enabled                      = site_config.value.remote_debugging_enabled
+      remote_debugging_version                      = site_config.value.remote_debugging_version
+      runtime_scale_monitoring_enabled              = site_config.value.runtime_scale_monitoring_enabled
+      scm_minimum_tls_version                       = site_config.value.scm_minimum_tls_version
+      scm_use_main_ip_restriction                   = site_config.value.scm_use_main_ip_restriction
+      use_32_bit_worker                             = site_config.value.use_32_bit_worker
+      app_scale_limit                               = site_config.value.app_scale_limit
+      websockets_enabled                            = site_config.value.websockets_enabled
+      vnet_route_all_enabled                        = site_config.value.vnet_route_all_enabled
+      worker_count                                  = site_config.value.worker_count
+      default_documents                             = toset(site_config.value.default_documents)
 
       dynamic "application_stack" {
-        for_each = lookup(var.settings.site_config, "application_stack", {}) != {} ? [1] : []
+        for_each = site_config.value.application_stack != null ? [site_config.value.application_stack] : []
         content {
-          java_version                = lookup(var.settings.site_config.application_stack, "java_version", null)
-          dotnet_version              = lookup(var.settings.site_config.application_stack, "dotnet_version", null)
-          use_dotnet_isolated_runtime = lookup(var.settings.site_config.application_stack, " use_dotnet_isolated_runtime", null)
-          node_version                = lookup(var.settings.site_config.application_stack, "node_version", null)
-          powershell_core_version     = lookup(var.settings.site_config.application_stack, "powershell_core_version", null)
-          use_custom_runtime          = lookup(var.settings.site_config.application_stack, "use_custom_runtime", null)
+          java_version            = application_stack.value.java_version
+          dotnet_version          = application_stack.value.dotnet_version
+          node_version            = application_stack.value.node_version
+          python_version          = application_stack.value.python_version
+          powershell_core_version = application_stack.value.powershell_core_version
+          use_custom_runtime      = application_stack.value.use_custom_runtime
+
+          dynamic "docker" {
+            for_each = application_stack.value.docker != null ? [application_stack.value.docker] : []
+            content {
+              registry_url      = docker.value.registry_url
+              registry_username = docker.value.registry_username
+              registry_password = docker.value.registry_password
+              image_name        = docker.value.image_name
+              image_tag         = docker.value.image_tag
+            }
+          }
         }
       }
 
       dynamic "app_service_logs" {
-        for_each = lookup(var.settings.site_config, "app_service_logs", {}) != {} ? [1] : []
+        for_each = site_config.value.app_service_logs != null ? [site_config.value.app_service_logs] : []
         content {
-          disk_quota_mb         = lookup(var.settings.app_service_logs, "disk_quota_mb", false)
-          retention_period_days = lookup(var.settings.retention_period_days, "retention_period_days", false)
+          disk_quota_mb         = app_service_logs.value.disk_quota_mb
+          retention_period_days = app_service_logs.value.retention_period_days
         }
       }
 
       dynamic "cors" {
-        for_each = try(var.settings.site_config.cors, {})
-
+        for_each = site_config.value.cors != null ? [site_config.value.cors] : []
         content {
-          allowed_origins     = lookup(cors, "allowed_origins", null)
-          support_credentials = lookup(cors, "support_credentials", null)
+          allowed_origins     = cors.value.allowed_origins
+          support_credentials = cors.value.support_credentials
         }
       }
 
       dynamic "ip_restriction" {
-        for_each = lookup(var.settings.site_config, "ip_restriction", {}) != {} ? [1] : []
+        for_each = site_config.value.ip_restriction != null ? [site_config.value.ip_restriction] : []
 
         content {
-          ip_address                = lookup(var.settings.site_config.ip_restriction, "ip_address", null)
-          service_tag               = lookup(var.settings.site_config.ip_restriction, "service_tag", null)
-          virtual_network_subnet_id = lookup(var.settings.site_config.ip_restriction, "virtual_network_subnet_id", null)
-          name                      = lookup(var.settings.site_config.ip_restriction, "name", null)
-          priority                  = lookup(var.settings.site_config.ip_restriction, "priority", null)
-          action                    = lookup(var.settings.site_config.ip_restriction, "actuib", null)
-
+          ip_address                = ip_restriction.value.ip_address
+          service_tag               = ip_restriction.value.service_tag
+          virtual_network_subnet_id = ip_restriction.value.virtual_network_subnet_id
+          name                      = ip_restriction.value.name
+          priority                  = ip_restriction.value.priority
+          action                    = ip_restriction.value.action
 
           dynamic "headers" {
-            for_each = lookup(var.settings.site_config.ip_restriction, "headers", {}) != {} ? [1] : []
+            for_each = ip_restriction.value.headers != null ? [ip_restriction.value.headers] : []
 
             content {
-              x_azure_fdid      = lookup(var.settings.site_config.ip_restriction.headers, "x_azure_fdid", null)
-              x_fd_health_probe = lookup(var.settings.site_config.ip_restriction.headers, "x_fd_health_prob", null)
-              x_forwarded_for   = lookup(var.settings.site_config.ip_restriction.headers, "x_forwarded_for", null)
-              x_forwarded_host  = lookup(var.settings.site_config.ip_restriction.headers, "x_forwarded_host", null)
+              x_azure_fdid      = headers.value.x_azure_fdid
+              x_fd_health_probe = headers.value.x_fd_health_prob
+              x_forwarded_for   = headers.value.x_forwarded_for
+              x_forwarded_host  = headers.value.x_forwarded_host
             }
           }
         }
       }
 
       dynamic "scm_ip_restriction" {
-        for_each = lookup(var.settings.site_config, "scm_ip_restriction", {}) != {} ? [1] : []
+        for_each = site_config.value.scm_ip_restriction != null ? [site_config.value.scm_ip_restriction] : []
 
         content {
-          ip_address                = lookup(var.settings.site_config.scm_ip_restriction, "ip_address", null)
-          service_tag               = lookup(var.settings.site_config.scm_ip_restriction, "service_tag", null)
-          virtual_network_subnet_id = lookup(var.settings.site_config.scm_ip_restriction, "virtual_network_subnet_id", null)
-          name                      = lookup(var.settings.site_config.scm_ip_restriction, "name", null)
-          priority                  = lookup(var.settings.site_config.scm_ip_restriction, "priority", null)
-          action                    = lookup(var.settings.site_config.scm_ip_restriction, "actuib", null)
-
+          ip_address                = scm_ip_restriction.value.ip_address
+          service_tag               = scm_ip_restriction.value.service_tag
+          virtual_network_subnet_id = scm_ip_restriction.value.virtual_network_subnet_id
+          name                      = scm_ip_restriction.value.name
+          priority                  = scm_ip_restriction.value.priority
+          action                    = scm_ip_restriction.value.action
 
           dynamic "headers" {
-            for_each = lookup(var.settings.site_config.scm_ip_restriction, "headers", {}) != {} ? [1] : []
+            for_each = scm_ip_restriction.value.headers != null ? [scm_ip_restriction.value.headers] : []
 
             content {
-              x_azure_fdid      = lookup(var.settings.site_config.scm_ip_restriction.headers, "x_azure_fdid", null)
-              x_fd_health_probe = lookup(var.settings.site_config.scm_ip_restriction.headers, "x_fd_health_prob", null)
-              x_forwarded_for   = lookup(var.settings.site_config.scm_ip_restriction.headers, "x_forwarded_for", null)
-              x_forwarded_host  = lookup(var.settings.site_config.scm_ip_restriction.headers, "x_forwarded_host", null)
+              x_azure_fdid      = headers.value.x_azure_fdid
+              x_fd_health_probe = headers.value.x_fd_health_prob
+              x_forwarded_for   = headers.value.x_forwarded_for
+              x_forwarded_host  = headers.value.x_forwarded_host
+            }
+          }
+        }
+      }
+
+      dynamic "auth_settings" {
+        for_each = each.value.auth_settings != null ? [each.value.auth_settings] : []
+
+        content {
+          enabled                        = auth_settings.value.enabled
+          additional_login_parameters    = auth_settings.value.additional_login_parameters
+          allowed_external_redirect_urls = auth_settings.value.allowed_external_redirect_urls
+          default_provider               = auth_settings.value.default_provider
+          issuer                         = auth_settings.value.issuer
+          runtime_version                = auth_settings.value.runtime_version
+          token_refresh_extension_hours  = auth_settings.value.token_refresh_extension_hours
+          token_store_enabled            = auth_settings.value.token_store_enabled
+          unauthenticated_client_action  = auth_settings.value.unauthenticated_client_action
+
+          dynamic "active_directory" {
+            for_each = auth_settings.value.active_directory != null ? [auth_settings.value.active_directory] : []
+
+            content {
+              client_id         = active_directory.value.client_id
+              client_secret     = active_directory.value.client_secret
+              allowed_audiences = active_directory.value.allowed_audiences
+            }
+          }
+
+          dynamic "facebook" {
+            for_each = auth_settings.value.facebook != null ? [auth_settings.value.facebook] : []
+
+            content {
+              app_id       = facebook.value.app_id
+              app_secret   = facebook.value.app_secret
+              oauth_scopes = facebook.value.oauth_scopes
+            }
+          }
+
+          dynamic "google" {
+            for_each = auth_settings.value.google != null ? [auth_settings.value.google] : []
+
+            content {
+              client_id     = google.value.client_id
+              client_secret = google.value.client_secret
+              oauth_scopes  = google.value.oauth_scopes
+            }
+          }
+
+          dynamic "microsoft" {
+            for_each = auth_settings.value.microsoft != null ? [auth_settings.value.microsoft] : []
+
+            content {
+              client_id     = microsoft.value.client_id
+              client_secret = microsoft.value.client_secret
+              oauth_scopes  = microsoft.value.oauth_scopes
+            }
+          }
+
+          dynamic "twitter" {
+            for_each = auth_settings.value.twitter != null ? [auth_settings.value.twitter] : []
+
+            content {
+              consumer_key    = twitter.value.consumer_key
+              consumer_secret = twitter.value.consumer_secret
+            }
+          }
+
+          dynamic "github" {
+            for_each = auth_settings.value.github != null ? [auth_settings.value.github] : []
+
+            content {
+              client_id                  = github.value.client_id
+              client_secret              = github.value.client_secret
+              client_secret_setting_name = github.value.client_secret_setting_name
+              oauth_scopes               = github.value.oauth_scopes
+            }
+          }
+        }
+      }
+
+      dynamic "connection_string" {
+        for_each = each.value.connection_strings
+        content {
+          name  = connection_string.value.name
+          type  = connection_string.value.type
+          value = connection_string.value.value
+        }
+      }
+      dynamic "sticky_settings" {
+        for_each = each.value.sticky_settings != null ? [each.value.sticky_settings] : []
+        content {
+          app_setting_names       = sticky_settings.value.app_setting_names
+          connection_string_names = sticky_settings.value.connection_string_names
+        }
+      }
+
+      dynamic "backup" {
+        for_each = each.value.backup != null ? [each.value.backup] : []
+        content {
+          name                = backup.value.name
+          enabled             = backup.value.enabled
+          storage_account_url = try(backup.value.storage_account_url, var.backup_sas_url)
+
+          dynamic "schedule" {
+            for_each = backup.value.schedule != null ? [backup.value.schedule] : []
+            content {
+              frequency_interval       = schedule.value.frequency_interval
+              frequency_unit           = schedule.value.frequency_unit
+              keep_at_least_one_backup = schedule.value.keep_at_least_one_backup
+              retention_period_days    = schedule.value.retention_period_days
+              start_time               = schedule.value.start_time
             }
           }
         }
       }
     }
   }
-
-  dynamic "auth_settings" {
-    for_each = lookup(var.settings, "auth_settings", {}) != {} ? [1] : []
-
-    content {
-      enabled                        = lookup(var.settings.auth_settings, "enabled", false)
-      additional_login_parameters    = lookup(var.settings.auth_settings, "additional_login_parameters", null)
-      allowed_external_redirect_urls = lookup(var.settings.auth_settings, "allowed_external_redirect_urls", null)
-      default_provider               = lookup(var.settings.auth_settings, "default_provider", null)
-      issuer                         = lookup(var.settings.auth_settings, "issuer", null)
-      runtime_version                = lookup(var.settings.auth_settings, "runtime_version", null)
-      token_refresh_extension_hours  = lookup(var.settings.auth_settings, "token_refresh_extension_hours", null)
-      token_store_enabled            = lookup(var.settings.auth_settings, "token_store_enabled", null)
-      unauthenticated_client_action  = lookup(var.settings.auth_settings, "unauthenticated_client_action", null)
-
-      dynamic "active_directory" {
-        for_each = lookup(var.settings.auth_settings, "active_directory", {}) != {} ? [1] : []
-
-        content {
-          client_id         = var.settings.auth_settings.active_directory.client_id
-          client_secret     = lookup(var.settings.auth_settings.active_directory, "client_secret", null)
-          allowed_audiences = lookup(var.settings.auth_settings.active_directory, "allowed_audiences", null)
-        }
-      }
-
-      dynamic "facebook" {
-        for_each = lookup(var.settings.auth_settings, "facebook", {}) != {} ? [1] : []
-
-        content {
-          app_id       = var.settings.auth_settings.facebook.app_id
-          app_secret   = var.settings.auth_settings.facebook.app_secret
-          oauth_scopes = lookup(var.settings.auth_settings.facebook, "oauth_scopes", null)
-        }
-      }
-
-      dynamic "google" {
-        for_each = lookup(var.settings.auth_settings, "google", {}) != {} ? [1] : []
-
-        content {
-          client_id     = var.settings.auth_settings.google.client_id
-          client_secret = var.settings.auth_settings.google.client_secret
-          oauth_scopes  = lookup(var.settings.auth_settings.google, "oauth_scopes", null)
-        }
-      }
-
-      dynamic "microsoft" {
-        for_each = lookup(var.settings.auth_settings, "microsoft", {}) != {} ? [1] : []
-
-        content {
-          client_id     = var.settings.auth_settings.microsoft.client_id
-          client_secret = var.settings.auth_settings.microsoft.client_secret
-          oauth_scopes  = lookup(var.settings.auth_settings.microsoft, "oauth_scopes", null)
-        }
-      }
-
-      dynamic "twitter" {
-        for_each = lookup(var.settings.auth_settings, "twitter", {}) != {} ? [1] : []
-
-        content {
-          consumer_key    = var.settings.auth_settings.twitter.consumer_key
-          consumer_secret = var.settings.auth_settings.twitter.consumer_secret
-        }
-      }
-
-      dynamic "github" {
-        for_each = lookup(var.settings.auth_settings, "github", {}) != {} ? [1] : []
-
-        content {
-          client_id                  = var.settings.auth_settings.github.client_id
-          client_secret              = var.settings.auth_settings.github.client_secret
-          client_secret_setting_name = var.settings.auth_settings.github.client_secret_setting_name
-          oauth_scopes               = lookup(var.settings.auth_settings.github, "oauth_scopes", null)
-        }
-      }
-    }
-  }
-
-  dynamic "connection_string" {
-    for_each = var.connection_strings
-    content {
-      name  = lookup(connection_string.value, "name", null)
-      type  = lookup(connection_string.value, "type", null)
-      value = lookup(connection_string.value, "value", null)
-    }
-  }
-
-  dynamic "sticky_settings" {
-    for_each = lookup(var.settings, "sticky_settings", {}) != {} ? [1] : []
-    content {
-      app_setting_names       = lookup(var.settings.sticky_settings, "app_setting_names", false)
-      connection_string_names = lookup(var.settings.sticky_settings, "connection_string_name", false)
-    }
-  }
-
-  lifecycle {
-    ignore_changes = [
-      app_settings.WEBSITE_RUN_FROM_ZIP,
-      app_settings.WEBSITE_RUN_FROM_PACKAGE,
-      app_settings.MACHINEKEY_DecryptionKey,
-      app_settings.WEBSITE_CONTENTAZUREFILECONNECTIONSTRING,
-      app_settings.WEBSITE_CONTENTSHARE
-    ]
-  }
-
-  dynamic "backup" {
-    for_each = lookup(var.settings, "backup", {}) != {} ? [1] : []
-
-    content {
-      name                = var.settings.backup.name
-      enabled             = var.settings.backup.enabled
-      storage_account_url = try(var.settings.backup.storage_account_url, var.backup_sas_url)
-
-      dynamic "schedule" {
-        for_each = lookup(var.settings.backup, "schedule", {}) != {} ? [1] : []
-
-        content {
-          frequency_interval       = var.settings.backup.schedule.frequency_interval
-          frequency_unit           = lookup(var.settings.backup.schedule, "frequency_unit", null)
-          keep_at_least_one_backup = lookup(var.settings.backup.schedule, "keep_at_least_one_backup", null)
-          retention_period_days    = lookup(var.settings.backup.schedule, "retention_period_days", null)
-          start_time               = lookup(var.settings.backup.schedule, "start_time", null)
-        }
-      }
-    }
-  }
-
-  dynamic "identity" {
-    for_each = each.value.identity_type == "SystemAssigned" ? [each.value.identity_type] : []
-    content {
-      type = each.value.identity_type
-    }
-  }
-
-  dynamic "identity" {
-    for_each = each.value.identity_type == "SystemAssigned, UserAssigned" ? [each.value.identity_type] : []
-    content {
-      type         = each.value.identity_type
-      identity_ids = try(each.value.identity_ids, [])
-    }
-  }
-
-
-  dynamic "identity" {
-    for_each = each.value.identity_type == "UserAssigned" ? [each.value.identity_type] : []
-    content {
-      type         = each.value.identity_type
-      identity_ids = length(try(each.value.identity_ids, [])) > 0 ? each.value.identity_ids : []
-    }
-  }
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "function_vnet_integration" {
-  count = var.function_app_vnet_integration_enabled ? 1 : 0
+    for_each = { for app in var.linux_function_apps : app.name => app if enable_vnet_integration == true }
 
-  app_service_id = azurerm_windows_function_app.function_app.id
-  subnet_id      = var.function_app_vnet_integration_subnet_id
+  app_service_id = azurerm_linux_function_app.function_app[each.value.name].id
+  subnet_id      = each.value.subnet_id
 }
