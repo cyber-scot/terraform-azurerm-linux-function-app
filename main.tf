@@ -8,7 +8,7 @@ resource "azurerm_service_plan" "service_plan" {
 }
 
 resource "azurerm_linux_function_app" "function_app" {
-  for_each = { for app in var.linux_function_apps : app.name => app }
+  for_each                    = { for app in var.linux_function_apps : app.name => app }
   name                        = each.value.name
   service_plan_id             = each.value.service_plan_id != null ? each.value.service_plan_id : azurerm_service_plan.service_plan[each.key].id
   location                    = each.value.location
@@ -28,125 +28,6 @@ resource "azurerm_linux_function_app" "function_app" {
 
   storage_key_vault_secret_id   = each.value.storage_account_name == null ? each.value.storage_key_vault_secret_id : null
   storage_uses_managed_identity = each.value.storage_account_access_key == null ? each.value.storage_uses_managed_identity : null
-
-        dynamic "backup" {
-        for_each = each.value.backup != null ? [each.value.backup] : []
-        content {
-          name                = backup.value.name
-          enabled             = backup.value.enabled
-          storage_account_url = try(backup.value.storage_account_url, var.backup_sas_url)
-
-          dynamic "schedule" {
-            for_each = backup.value.schedule != null ? [backup.value.schedule] : []
-            content {
-              frequency_interval       = schedule.value.frequency_interval
-              frequency_unit           = schedule.value.frequency_unit
-              keep_at_least_one_backup = schedule.value.keep_at_least_one_backup
-              retention_period_days    = schedule.value.retention_period_days
-              start_time               = schedule.value.start_time
-            }
-          }
-        }
-      }
-
-  dynamic "identity" {
-        for_each = each.value.identity_type == "SystemAssigned" ? [each.value.identity_type] : []
-        content {
-          type = each.value.identity_type
-        }
-      }
-
-      dynamic "identity" {
-        for_each = each.value.identity_type == "SystemAssigned, UserAssigned" ? [each.value.identity_type] : []
-        content {
-          type         = each.value.identity_type
-          identity_ids = try(each.value.identity_ids, [])
-        }
-      }
-
-      dynamic "identity" {
-        for_each = each.value.identity_type == "UserAssigned" ? [each.value.identity_type] : []
-        content {
-          type         = each.value.identity_type
-          identity_ids = length(try(each.value.identity_ids, [])) > 0 ? each.value.identity_ids : []
-        }
-      }
-
-  dynamic "auth_settings" {
-        for_each = each.value.auth_settings != null ? [each.value.auth_settings] : []
-
-        content {
-          enabled                        = auth_settings.value.enabled
-          additional_login_parameters    = auth_settings.value.additional_login_parameters
-          allowed_external_redirect_urls = auth_settings.value.allowed_external_redirect_urls
-          default_provider               = auth_settings.value.default_provider
-          issuer                         = auth_settings.value.issuer
-          runtime_version                = auth_settings.value.runtime_version
-          token_refresh_extension_hours  = auth_settings.value.token_refresh_extension_hours
-          token_store_enabled            = auth_settings.value.token_store_enabled
-          unauthenticated_client_action  = auth_settings.value.unauthenticated_client_action
-
-          dynamic "active_directory" {
-            for_each = auth_settings.value.active_directory != null ? [auth_settings.value.active_directory] : []
-
-            content {
-              client_id         = active_directory.value.client_id
-              client_secret     = active_directory.value.client_secret
-              allowed_audiences = active_directory.value.allowed_audiences
-            }
-          }
-
-          dynamic "facebook" {
-            for_each = auth_settings.value.facebook != null ? [auth_settings.value.facebook] : []
-
-            content {
-              app_id       = facebook.value.app_id
-              app_secret   = facebook.value.app_secret
-              oauth_scopes = facebook.value.oauth_scopes
-            }
-          }
-
-          dynamic "google" {
-            for_each = auth_settings.value.google != null ? [auth_settings.value.google] : []
-
-            content {
-              client_id     = google.value.client_id
-              client_secret = google.value.client_secret
-              oauth_scopes  = google.value.oauth_scopes
-            }
-          }
-
-          dynamic "microsoft" {
-            for_each = auth_settings.value.microsoft != null ? [auth_settings.value.microsoft] : []
-
-            content {
-              client_id     = microsoft.value.client_id
-              client_secret = microsoft.value.client_secret
-              oauth_scopes  = microsoft.value.oauth_scopes
-            }
-          }
-
-          dynamic "twitter" {
-            for_each = auth_settings.value.twitter != null ? [auth_settings.value.twitter] : []
-
-            content {
-              consumer_key    = twitter.value.consumer_key
-              consumer_secret = twitter.value.consumer_secret
-            }
-          }
-
-          dynamic "github" {
-            for_each = auth_settings.value.github != null ? [auth_settings.value.github] : []
-
-            content {
-              client_id                  = github.value.client_id
-              client_secret              = github.value.client_secret
-              client_secret_setting_name = github.value.client_secret_setting_name
-              oauth_scopes               = github.value.oauth_scopes
-            }
-          }
-        }
-      }
 
   dynamic "site_config" {
     for_each = each.value.site_settings != null ? [each.value.site_settings] : []
@@ -268,6 +149,82 @@ resource "azurerm_linux_function_app" "function_app" {
         }
       }
 
+      dynamic "auth_settings" {
+        for_each = each.value.auth_settings != null ? [each.value.auth_settings] : []
+
+        content {
+          enabled                        = auth_settings.value.enabled
+          additional_login_parameters    = auth_settings.value.additional_login_parameters
+          allowed_external_redirect_urls = auth_settings.value.allowed_external_redirect_urls
+          default_provider               = auth_settings.value.default_provider
+          issuer                         = auth_settings.value.issuer
+          runtime_version                = auth_settings.value.runtime_version
+          token_refresh_extension_hours  = auth_settings.value.token_refresh_extension_hours
+          token_store_enabled            = auth_settings.value.token_store_enabled
+          unauthenticated_client_action  = auth_settings.value.unauthenticated_client_action
+
+          dynamic "active_directory" {
+            for_each = auth_settings.value.active_directory != null ? [auth_settings.value.active_directory] : []
+
+            content {
+              client_id         = active_directory.value.client_id
+              client_secret     = active_directory.value.client_secret
+              allowed_audiences = active_directory.value.allowed_audiences
+            }
+          }
+
+          dynamic "facebook" {
+            for_each = auth_settings.value.facebook != null ? [auth_settings.value.facebook] : []
+
+            content {
+              app_id       = facebook.value.app_id
+              app_secret   = facebook.value.app_secret
+              oauth_scopes = facebook.value.oauth_scopes
+            }
+          }
+
+          dynamic "google" {
+            for_each = auth_settings.value.google != null ? [auth_settings.value.google] : []
+
+            content {
+              client_id     = google.value.client_id
+              client_secret = google.value.client_secret
+              oauth_scopes  = google.value.oauth_scopes
+            }
+          }
+
+          dynamic "microsoft" {
+            for_each = auth_settings.value.microsoft != null ? [auth_settings.value.microsoft] : []
+
+            content {
+              client_id     = microsoft.value.client_id
+              client_secret = microsoft.value.client_secret
+              oauth_scopes  = microsoft.value.oauth_scopes
+            }
+          }
+
+          dynamic "twitter" {
+            for_each = auth_settings.value.twitter != null ? [auth_settings.value.twitter] : []
+
+            content {
+              consumer_key    = twitter.value.consumer_key
+              consumer_secret = twitter.value.consumer_secret
+            }
+          }
+
+          dynamic "github" {
+            for_each = auth_settings.value.github != null ? [auth_settings.value.github] : []
+
+            content {
+              client_id                  = github.value.client_id
+              client_secret              = github.value.client_secret
+              client_secret_setting_name = github.value.client_secret_setting_name
+              oauth_scopes               = github.value.oauth_scopes
+            }
+          }
+        }
+      }
+
       dynamic "connection_string" {
         for_each = each.value.connection_strings
         content {
@@ -283,12 +240,32 @@ resource "azurerm_linux_function_app" "function_app" {
           connection_string_names = sticky_settings.value.connection_string_names
         }
       }
+
+      dynamic "backup" {
+        for_each = each.value.backup != null ? [each.value.backup] : []
+        content {
+          name                = backup.value.name
+          enabled             = backup.value.enabled
+          storage_account_url = try(backup.value.storage_account_url, var.backup_sas_url)
+
+          dynamic "schedule" {
+            for_each = backup.value.schedule != null ? [backup.value.schedule] : []
+            content {
+              frequency_interval       = schedule.value.frequency_interval
+              frequency_unit           = schedule.value.frequency_unit
+              keep_at_least_one_backup = schedule.value.keep_at_least_one_backup
+              retention_period_days    = schedule.value.retention_period_days
+              start_time               = schedule.value.start_time
+            }
+          }
+        }
+      }
     }
   }
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "function_vnet_integration" {
-    for_each = { for app in var.linux_function_apps : app.name => app if enable_vnet_integration == true }
+  for_each = { for app in var.linux_function_apps : app.name => app if enable_vnet_integration == true }
 
   app_service_id = azurerm_linux_function_app.function_app[each.value.name].id
   subnet_id      = each.value.subnet_id

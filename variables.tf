@@ -1,14 +1,14 @@
 variable "linux_function_apps" {
   type = list(object({
-    name            = string
-    location        = string
-    service_plan_id = optional(string)
-    tags            = map(string)
-    rg_name         = string
+    name                  = string
+    location              = string
+    service_plan_id       = optional(string)
+    tags                  = map(string)
+    rg_name               = string
     app_service_plan_name = optional(string)
-    os_type = optional(string, "Linux")
-    sku_name = string
-    app_settings    = optional(object({
+    os_type               = optional(string, "Linux")
+    sku_name              = string
+    app_settings = optional(object({
       APPINSIGHTS_INSTRUMENTATIONKEY                       = optional(string)
       APPLICATIONINSIGHTS_CONNECTION_STRING                = optional(string)
       AZURE_FUNCTION_PROXY_DISABLE_LOCAL_CALL              = optional(string)
@@ -70,18 +70,18 @@ variable "linux_function_apps" {
       WEBSITE_USE_PLACEHOLDER                              = optional(string)
       WEBSITE_VNET_ROUTE_ALL                               = optional(string)
     }))
-    https_only                                = optional(bool)
-    builtin_logging_enabled                   = optional(bool)
-    client_certificate_enabled                = optional(bool)
-    client_certificate_mode                   = optional(string)
-    daily_memory_time_quota                   = optional(number)
-    enabled                                   = optional(bool)
-    functions_extension_version               = optional(string)
-    storage_account_name                      = optional(string)
-    storage_account_access_key                = optional(string)
-    storage_key_vault_secret_id               = optional(string)
-    storage_uses_managed_identity             = optional(bool)
-    site_settings                             = optional(object({
+    https_only                    = optional(bool)
+    builtin_logging_enabled       = optional(bool)
+    client_certificate_enabled    = optional(bool)
+    client_certificate_mode       = optional(string)
+    daily_memory_time_quota       = optional(number)
+    enabled                       = optional(bool)
+    functions_extension_version   = optional(string)
+    storage_account_name          = optional(string)
+    storage_account_access_key    = optional(string)
+    storage_key_vault_secret_id   = optional(string)
+    storage_uses_managed_identity = optional(bool)
+    site_settings = optional(object({
       always_on                                     = optional(bool)
       api_definition_url                            = optional(string)
       api_management_api_id                         = optional(string)
@@ -110,14 +110,14 @@ variable "linux_function_apps" {
       vnet_route_all_enabled                        = optional(bool)
       worker_count                                  = optional(number)
       default_documents                             = optional(list(string))
-      application_stack                             = optional(object({
+      application_stack = optional(object({
         java_version            = optional(string)
         dotnet_version          = optional(string)
         node_version            = optional(string)
         python_version          = optional(string)
         powershell_core_version = optional(string)
         use_custom_runtime      = optional(bool)
-        docker                  = optional(object({
+        docker = optional(object({
           registry_url      = optional(string)
           registry_username = optional(string)
           registry_password = optional(string)
@@ -125,43 +125,43 @@ variable "linux_function_apps" {
           image_tag         = optional(string)
         }))
       }))
-      app_service_logs                            = optional(object({
+      app_service_logs = optional(object({
         disk_quota_mb         = optional(number)
         retention_period_days = optional(number)
       }))
-      cors                                        = optional(object({
+      cors = optional(object({
         allowed_origins     = optional(list(string))
         support_credentials = optional(bool)
       }))
-      ip_restriction                               = optional(list(object({
+      ip_restriction = optional(list(object({
         ip_address                = optional(string)
         service_tag               = optional(string)
         virtual_network_subnet_id = optional(string)
         name                      = optional(string)
         priority                  = optional(number)
         action                    = optional(string)
-        headers                   = optional(object({
-          x_azure_fdid      = optional(string)
-          x_fd_health_prob  = optional(string)
-          x_forwarded_for   = optional(string)
-          x_forwarded_host  = optional(string)
+        headers = optional(object({
+          x_azure_fdid     = optional(string)
+          x_fd_health_prob = optional(string)
+          x_forwarded_for  = optional(string)
+          x_forwarded_host = optional(string)
         }))
       })))
-      scm_ip_restriction                           = optional(list(object({
+      scm_ip_restriction = optional(list(object({
         ip_address                = optional(string)
         service_tag               = optional(string)
         virtual_network_subnet_id = optional(string)
         name                      = optional(string)
         priority                  = optional(number)
         action                    = optional(string)
-        headers                   = optional(object({
-          x_azure_fdid      = optional(string)
-          x_fd_health_prob  = optional(string)
-          x_forwarded_for   = optional(string)
-          x_forwarded_host  = optional(string)
+        headers = optional(object({
+          x_azure_fdid     = optional(string)
+          x_fd_health_prob = optional(string)
+          x_forwarded_for  = optional(string)
+          x_forwarded_host = optional(string)
         }))
       })))
-      auth_settings                                = optional(object({
+      auth_settings = optional(object({
         enabled                        = optional(bool)
         additional_login_parameters    = optional(map(string))
         allowed_external_redirect_urls = optional(list(string))
@@ -171,51 +171,51 @@ variable "linux_function_apps" {
         token_refresh_extension_hours  = optional(number)
         token_store_enabled            = optional(bool)
         unauthenticated_client_action  = optional(string)
-        active_directory               = optional(object({
+        active_directory = optional(object({
           client_id         = optional(string)
           client_secret     = optional(string)
           allowed_audiences = optional(list(string))
         }))
-        facebook                       = optional(object({
+        facebook = optional(object({
           app_id       = optional(string)
           app_secret   = optional(string)
           oauth_scopes = optional(list(string))
         }))
-        google                         = optional(object({
+        google = optional(object({
           client_id     = optional(string)
           client_secret = optional(string)
           oauth_scopes  = optional(list(string))
         }))
-        microsoft                      = optional(object({
+        microsoft = optional(object({
           client_id     = optional(string)
           client_secret = optional(string)
           oauth_scopes  = optional(list(string))
         }))
-        twitter                        = optional(object({
+        twitter = optional(object({
           consumer_key    = optional(string)
           consumer_secret = optional(string)
         }))
-        github                         = optional(object({
+        github = optional(object({
           client_id                  = optional(string)
           client_secret              = optional(string)
           client_secret_setting_name = optional(string)
           oauth_scopes               = optional(list(string))
         }))
       }))
-      connection_string                            = optional(list(object({
+      connection_string = optional(list(object({
         name  = optional(string)
         type  = optional(string)
         value = optional(string)
       })))
-      sticky_settings                              = optional(object({
+      sticky_settings = optional(object({
         app_setting_names       = optional(list(string))
         connection_string_names = optional(list(string))
       }))
-      backup                                       = optional(object({
+      backup = optional(object({
         name                = optional(string)
         enabled             = optional(bool)
         storage_account_url = optional(string)
-        schedule            = optional(object({
+        schedule = optional(object({
           frequency_interval       = optional(number)
           frequency_unit           = optional(string)
           keep_at_least_one_backup = optional(bool)
@@ -223,11 +223,11 @@ variable "linux_function_apps" {
           start_time               = optional(string)
         }))
       }))
-        identity_ids                  = optional(list(string))
-        identity_type                 = optional(string)
+      identity_ids  = optional(list(string))
+      identity_type = optional(string)
     }))
-    enable_vnet_integration                       = optional(bool)
-    subnet_id                                    = optional(string)
+    enable_vnet_integration = optional(bool)
+    subnet_id               = optional(string)
   }))
   default     = []
   description = "A list of Linux function apps to be made"
