@@ -465,7 +465,6 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_function_app_identities"></a> [function\_app\_identities](#output\_function\_app\_identities) | The identities of the Storage Accounts. |
 | <a name="output_function_apps_custom_domain_verification_id"></a> [function\_apps\_custom\_domain\_verification\_id](#output\_function\_apps\_custom\_domain\_verification\_id) | The custom domain verification IDs of the Linux Function Apps. |
 | <a name="output_function_apps_default_hostnames"></a> [function\_apps\_default\_hostnames](#output\_function\_apps\_default\_hostnames) | The default hostnames of the Linux Function Apps. |
 | <a name="output_function_apps_identity_principal_ids"></a> [function\_apps\_identity\_principal\_ids](#output\_function\_apps\_identity\_principal\_ids) | The Principal IDs associated with the Managed Service Identities of the Linux Function Apps. |
