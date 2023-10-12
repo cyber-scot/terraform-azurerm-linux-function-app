@@ -1,3 +1,19 @@
+output "function_app_identities" {
+  description = "The identities of the Storage Accounts."
+  value = {
+    for key, value in azurerm_linux_function_app.function_app : key =>
+    length(value.identity) > 0 ? {
+      type         = try(value.identity[0].type, null)
+      principal_id = try(value.identity[0].principal_id, null)
+      tenant_id    = try(value.identity[0].tenant_id, null)
+      } : {
+      type         = null
+      principal_id = null
+      tenant_id    = null
+    }
+  }
+}
+
 output "function_apps_custom_domain_verification_id" {
   description = "The custom domain verification IDs of the Linux Function Apps."
   value       = { for app in azurerm_linux_function_app.function_app : app.name => app.custom_domain_verification_id }
@@ -6,16 +22,6 @@ output "function_apps_custom_domain_verification_id" {
 output "function_apps_default_hostnames" {
   description = "The default hostnames of the Linux Function Apps."
   value       = { for app in azurerm_linux_function_app.function_app : app.name => app.default_hostname }
-}
-
-output "function_apps_identity_principal_ids" {
-  description = "The Principal IDs associated with the Managed Service Identities of the Linux Function Apps."
-  value       = { for app in azurerm_linux_function_app.function_app : app.name => app.identity[0].principal_id }
-}
-
-output "function_apps_identity_tenant_ids" {
-  description = "The Tenant IDs associated with the Managed Service Identities of the Linux Function Apps."
-  value       = { for app in azurerm_linux_function_app.function_app : app.name => app.identity[0].tenant_id }
 }
 
 output "function_apps_outbound_ip_addresses" {

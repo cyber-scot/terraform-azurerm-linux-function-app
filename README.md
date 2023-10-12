@@ -465,10 +465,9 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_function_app_identities"></a> [function\_app\_identities](#output\_function\_app\_identities) | The identities of the Storage Accounts. |
 | <a name="output_function_apps_custom_domain_verification_id"></a> [function\_apps\_custom\_domain\_verification\_id](#output\_function\_apps\_custom\_domain\_verification\_id) | The custom domain verification IDs of the Linux Function Apps. |
 | <a name="output_function_apps_default_hostnames"></a> [function\_apps\_default\_hostnames](#output\_function\_apps\_default\_hostnames) | The default hostnames of the Linux Function Apps. |
-| <a name="output_function_apps_identity_principal_ids"></a> [function\_apps\_identity\_principal\_ids](#output\_function\_apps\_identity\_principal\_ids) | The Principal IDs associated with the Managed Service Identities of the Linux Function Apps. |
-| <a name="output_function_apps_identity_tenant_ids"></a> [function\_apps\_identity\_tenant\_ids](#output\_function\_apps\_identity\_tenant\_ids) | The Tenant IDs associated with the Managed Service Identities of the Linux Function Apps. |
 | <a name="output_function_apps_outbound_ip_addresses"></a> [function\_apps\_outbound\_ip\_addresses](#output\_function\_apps\_outbound\_ip\_addresses) | The outbound IP addresses of the Linux Function Apps. |
 | <a name="output_function_apps_possible_outbound_ip_addresses"></a> [function\_apps\_possible\_outbound\_ip\_addresses](#output\_function\_apps\_possible\_outbound\_ip\_addresses) | The possible outbound IP addresses of the Linux Function Apps. |
 | <a name="output_function_apps_site_credentials"></a> [function\_apps\_site\_credentials](#output\_function\_apps\_site\_credentials) | The site credentials for the Linux Function Apps. |
