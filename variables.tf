@@ -1,15 +1,44 @@
 variable "linux_function_apps" {
   type = list(object({
-    name                    = string
-    location                = string
-    service_plan_id         = optional(string)
-    tags                    = map(string)
-    rg_name                 = string
-    app_service_plan_name   = optional(string)
-    os_type                 = optional(string, "Linux")
-    enable_vnet_integration = optional(bool)
-    subnet_id               = optional(string)
-    sku_name                = string
+    name                          = string
+    location                      = string
+    service_plan_id               = optional(string)
+    tags                          = map(string)
+    rg_name                       = string
+    app_service_plan_name         = optional(string)
+    os_type                       = optional(string, "Linux")
+    enable_vnet_integration       = optional(bool)
+    subnet_id                     = optional(string)
+    https_only                    = optional(bool)
+    builtin_logging_enabled       = optional(bool)
+    client_certificate_enabled    = optional(bool)
+    client_certificate_mode       = optional(string)
+    daily_memory_time_quota       = optional(number)
+    enabled                       = optional(bool)
+    functions_extension_version   = optional(string)
+    storage_account_name          = optional(string)
+    storage_account_access_key    = optional(string)
+    storage_key_vault_secret_id   = optional(string)
+    identity_ids                  = optional(list(string))
+    identity_type                 = optional(string)
+    storage_uses_managed_identity = optional(bool)
+    sticky_settings = optional(object({
+      app_setting_names       = optional(list(string))
+      connection_string_names = optional(list(string))
+    }))
+    sku_name = string
+    backup = optional(object({
+      name                = optional(string)
+      enabled             = optional(bool)
+      storage_account_url = optional(string)
+      schedule = optional(object({
+        frequency_interval       = optional(number)
+        frequency_unit           = optional(string)
+        keep_at_least_one_backup = optional(bool)
+        retention_period_days    = optional(number)
+        start_time               = optional(string)
+      }))
+    }))
     site_settings = optional(object({
       always_on                                     = optional(bool)
       api_definition_url                            = optional(string)
@@ -204,35 +233,6 @@ variable "linux_function_apps" {
         WEBSITE_TIME_ZONE                                    = optional(string)
         WEBSITE_USE_PLACEHOLDER                              = optional(string)
         WEBSITE_VNET_ROUTE_ALL                               = optional(string)
-      }))
-      https_only                    = optional(bool)
-      builtin_logging_enabled       = optional(bool)
-      client_certificate_enabled    = optional(bool)
-      client_certificate_mode       = optional(string)
-      daily_memory_time_quota       = optional(number)
-      enabled                       = optional(bool)
-      functions_extension_version   = optional(string)
-      storage_account_name          = optional(string)
-      storage_account_access_key    = optional(string)
-      storage_key_vault_secret_id   = optional(string)
-      identity_ids                  = optional(list(string))
-      identity_type                 = optional(string)
-      storage_uses_managed_identity = optional(bool)
-      sticky_settings = optional(object({
-        app_setting_names       = optional(list(string))
-        connection_string_names = optional(list(string))
-      }))
-      backup = optional(object({
-        name                = optional(string)
-        enabled             = optional(bool)
-        storage_account_url = optional(string)
-        schedule = optional(object({
-          frequency_interval       = optional(number)
-          frequency_unit           = optional(string)
-          keep_at_least_one_backup = optional(bool)
-          retention_period_days    = optional(number)
-          start_time               = optional(string)
-        }))
       }))
     }))
   }))

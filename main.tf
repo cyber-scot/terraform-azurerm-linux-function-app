@@ -10,7 +10,7 @@ resource "azurerm_service_plan" "service_plan" {
 resource "azurerm_linux_function_app" "function_app" {
   for_each                    = { for app in var.linux_function_apps : app.name => app }
   name                        = each.value.name
-  service_plan_id             = each.value.service_plan_id != null ? each.value.service_plan_id : azurerm_service_plan.service_plan[each.key].id
+  service_plan_id             = each.value.service_plan_id != null ? each.value.service_plan_id : lookup(azurerm_service_plan.service_plan, each.key, null).id
   location                    = each.value.location
   resource_group_name         = each.value.rg_name
   app_settings                = each.value.app_settings
