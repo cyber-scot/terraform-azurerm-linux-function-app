@@ -69,16 +69,17 @@ module "fnc_app" {
   source = "../../"
   linux_function_apps = [
     {
-      name = "fnc-${var.short}-${var.loc}-${var.env}-01"
+      name                  = "fnc-${var.short}-${var.loc}-${var.env}-01"
       app_service_plan_name = "asp-${var.short}-${var.loc}-${var.env}-01"
 
       rg_name  = module.rg.rg_name
       location = module.rg.rg_location
       tags     = module.rg.rg_tags
 
-      identity_type = "UserAssigned"
-      identity_ids  = [azurerm_user_assigned_identity.uid.id]
-      storage_acc
+      identity_type                 = "UserAssigned"
+      identity_ids                  = [azurerm_user_assigned_identity.uid.id]
+      storage_account_name          = module.sa.storage_account_names["sa${var.short}${var.loc}${var.env}01"]
+      storage_uses_managed_identity = true
 
       sku_name = "Y1"
       app_settings = {
