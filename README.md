@@ -32,17 +32,17 @@ resource "azurerm_linux_function_app" "function_app" {
   storage_uses_managed_identity = each.value.storage_account_access_key == null ? each.value.storage_uses_managed_identity : null
 
   dynamic "storage_account" {
-  for_each = each.value.storage_account != null ? [each.value.storage_account] : []
+    for_each = each.value.storage_account != null ? [each.value.storage_account] : []
 
-  content {
-    access_key   = storage_account.value.access_key
-    account_name = storage_account.value.account_name
-    name         = storage_account.value.name
-    share_name   = storage_account.value.share_name
-    type         = storage_account.value.type
-    mount_path   = storage_account.value.mount_path
+    content {
+      access_key   = storage_account.value.access_key
+      account_name = storage_account.value.account_name
+      name         = storage_account.value.name
+      share_name   = storage_account.value.share_name
+      type         = storage_account.value.type
+      mount_path   = storage_account.value.mount_path
+    }
   }
-}
 
 
   dynamic "sticky_settings" {
@@ -162,26 +162,26 @@ resource "azurerm_linux_function_app" "function_app" {
     for_each = each.value.auth_settings_v2 != null ? [each.value.auth_settings_v2] : []
 
     content {
-      auth_enabled                                = auth_settings_v2.value.auth_enabled
-      runtime_version                             = auth_settings_v2.value.runtime_version
-      config_file_path                            = auth_settings_v2.value.config_file_path
-      require_authentication                      = auth_settings_v2.value.require_authentication
-      unauthenticated_action                      = auth_settings_v2.value.unauthenticated_action
-      default_provider                            = auth_settings_v2.value.default_provider
-      excluded_paths                              = toset(auth_settings_v2.value.excluded_paths)
-      require_https                               = auth_settings_v2.value.require_https
-      http_route_api_prefix                       = auth_settings_v2.value.http_route_api_prefix
-      forward_proxy_convention                    = auth_settings_v2.value.forward_proxy_convention
-      forward_proxy_custom_host_header_name       = auth_settings_v2.value.forward_proxy_custom_host_header_name
-      forward_proxy_custom_scheme_header_name     = auth_settings_v2.value.forward_proxy_custom_scheme_header_name
+      auth_enabled                            = auth_settings_v2.value.auth_enabled
+      runtime_version                         = auth_settings_v2.value.runtime_version
+      config_file_path                        = auth_settings_v2.value.config_file_path
+      require_authentication                  = auth_settings_v2.value.require_authentication
+      unauthenticated_action                  = auth_settings_v2.value.unauthenticated_action
+      default_provider                        = auth_settings_v2.value.default_provider
+      excluded_paths                          = toset(auth_settings_v2.value.excluded_paths)
+      require_https                           = auth_settings_v2.value.require_https
+      http_route_api_prefix                   = auth_settings_v2.value.http_route_api_prefix
+      forward_proxy_convention                = auth_settings_v2.value.forward_proxy_convention
+      forward_proxy_custom_host_header_name   = auth_settings_v2.value.forward_proxy_custom_host_header_name
+      forward_proxy_custom_scheme_header_name = auth_settings_v2.value.forward_proxy_custom_scheme_header_name
 
       dynamic "apple_v2" {
         for_each = auth_settings_v2.value.apple_v2 != null ? [auth_settings_v2.value.apple_v2] : []
 
         content {
-          client_id                      = apple_v2.value.client_id
-          client_secret_setting_name     = apple_v2.value.client_secret_setting_name
-          login_scopes                   = toset(apple_v2.value.login_scopes)
+          client_id                  = apple_v2.value.client_id
+          client_secret_setting_name = apple_v2.value.client_secret_setting_name
+          login_scopes               = toset(apple_v2.value.login_scopes)
         }
       }
 
@@ -189,18 +189,18 @@ resource "azurerm_linux_function_app" "function_app" {
         for_each = auth_settings_v2.value.active_directory_v2 != null ? [auth_settings_v2.value.active_directory_v2] : []
 
         content {
-          client_id                           = active_directory_v2.value.client_id
-          tenant_auth_endpoint                = active_directory_v2.value.tenant_auth_endpoint
-          client_secret_setting_name          = active_directory_v2.value.client_secret_setting_name
+          client_id                            = active_directory_v2.value.client_id
+          tenant_auth_endpoint                 = active_directory_v2.value.tenant_auth_endpoint
+          client_secret_setting_name           = active_directory_v2.value.client_secret_setting_name
           client_secret_certificate_thumbprint = active_directory_v2.value.client_secret_certificate_thumbprint
-          jwt_allowed_groups                  = toset(active_directory_v2.value.jwt_allowed_groups)
-          jwt_allowed_client_applications     = toset(active_directory_v2.value.jwt_allowed_client_applications)
-          www_authentication_disabled         = active_directory_v2.value.www_authentication_disabled
-          allowed_groups                      = toset(active_directory_v2.value.allowed_groups)
-          allowed_identities                  = toset(active_directory_v2.value.allowed_identities)
-          allowed_applications                = toset(active_directory_v2.value.allowed_applications)
-          login_parameters                    = active_directory_v2.value.login_parameters
-          allowed_audiences                   = toset(active_directory_v2.value.allowed_audiences)
+          jwt_allowed_groups                   = toset(active_directory_v2.value.jwt_allowed_groups)
+          jwt_allowed_client_applications      = toset(active_directory_v2.value.jwt_allowed_client_applications)
+          www_authentication_disabled          = active_directory_v2.value.www_authentication_disabled
+          allowed_groups                       = toset(active_directory_v2.value.allowed_groups)
+          allowed_identities                   = toset(active_directory_v2.value.allowed_identities)
+          allowed_applications                 = toset(active_directory_v2.value.allowed_applications)
+          login_parameters                     = active_directory_v2.value.login_parameters
+          allowed_audiences                    = toset(active_directory_v2.value.allowed_audiences)
         }
       }
 
@@ -213,32 +213,32 @@ resource "azurerm_linux_function_app" "function_app" {
       }
 
       dynamic "custom_oidc_v2" {
-    for_each = auth_settings_v2.value.custom_oidc_v2 != null ? [auth_settings_v2.value.custom_oidc_v2] : []
+        for_each = auth_settings_v2.value.custom_oidc_v2 != null ? [auth_settings_v2.value.custom_oidc_v2] : []
 
-    content {
-      name                            = custom_oidc_v2.value.name
-      client_id                       = custom_oidc_v2.value.client_id
-      openid_configuration_endpoint   = custom_oidc_v2.value.openid_configuration_endpoint
-      name_claim_type                 = custom_oidc_v2.value.name_claim_type
-      scopes                          = toset(custom_oidc_v2.value.scopes)
-      client_credential_method        = custom_oidc_v2.value.client_credential_method
-      client_secret_setting_name      = custom_oidc_v2.value.client_secret_setting_name
-      authorisation_endpoint          = custom_oidc_v2.value.authorisation_endpoint
-      token_endpoint                  = custom_oidc_v2.value.token_endpoint
-      issuer_endpoint                 = custom_oidc_v2.value.issuer_endpoint
-      certification_uri               = custom_oidc_v2.value.certification_uri
-    }
-}
+        content {
+          name                          = custom_oidc_v2.value.name
+          client_id                     = custom_oidc_v2.value.client_id
+          openid_configuration_endpoint = custom_oidc_v2.value.openid_configuration_endpoint
+          name_claim_type               = custom_oidc_v2.value.name_claim_type
+          scopes                        = toset(custom_oidc_v2.value.scopes)
+          client_credential_method      = custom_oidc_v2.value.client_credential_method
+          client_secret_setting_name    = custom_oidc_v2.value.client_secret_setting_name
+          authorisation_endpoint        = custom_oidc_v2.value.authorisation_endpoint
+          token_endpoint                = custom_oidc_v2.value.token_endpoint
+          issuer_endpoint               = custom_oidc_v2.value.issuer_endpoint
+          certification_uri             = custom_oidc_v2.value.certification_uri
+        }
+      }
 
 
       dynamic "facebook_v2" {
         for_each = auth_settings_v2.value.facebook_v2 != null ? [auth_settings_v2.value.facebook_v2] : []
 
         content {
-          graph_api_version           = facebook_v2.value.graph_api_version
-          login_scopes                = toset(facebook_v2.value.login_scopes)
-          app_id                      = facebook_v2_value.app_id
-          app_secret_setting_name     = facebook_v2.value.app_secret_setting_name
+          graph_api_version       = facebook_v2.value.graph_api_version
+          login_scopes            = toset(facebook_v2.value.login_scopes)
+          app_id                  = facebook_v2_value.app_id
+          app_secret_setting_name = facebook_v2.value.app_secret_setting_name
         }
       }
 
@@ -246,9 +246,9 @@ resource "azurerm_linux_function_app" "function_app" {
         for_each = auth_settings_v2.value.github_v2 != null ? [auth_settings_v2.value.github_v2] : []
 
         content {
-          client_id                   = github_v2.value.client_id
-          client_secret_setting_name  = github_v2.value.client_secret_setting_name
-          login_scopes                = toset(github_v2.value.login_scopes)
+          client_id                  = github_v2.value.client_id
+          client_secret_setting_name = github_v2.value.client_secret_setting_name
+          login_scopes               = toset(github_v2.value.login_scopes)
         }
       }
 
@@ -256,10 +256,10 @@ resource "azurerm_linux_function_app" "function_app" {
         for_each = auth_settings_v2.value.google_v2 != null ? [auth_settings_v2.value.google_v2] : []
 
         content {
-          client_id                   = google_v2.value.client_id
-          client_secret_setting_name  = google_v2.value.client_secret_setting_name
-          allowed_audiences           = toset(google_v2.value.allowed_audiences)
-          login_scopes                = toset(google_v2.value.login_scopes)
+          client_id                  = google_v2.value.client_id
+          client_secret_setting_name = google_v2.value.client_secret_setting_name
+          allowed_audiences          = toset(google_v2.value.allowed_audiences)
+          login_scopes               = toset(google_v2.value.login_scopes)
         }
       }
 
@@ -267,40 +267,40 @@ resource "azurerm_linux_function_app" "function_app" {
         for_each = auth_settings_v2.value.microsoft_v2 != null ? [auth_settings_v2.value.microsoft_v2] : []
 
         content {
-          client_id                   = microsoft_v2.value.client_id
-          client_secret_setting_name  = microsoft_v2.value.client_secret_setting_name
-          allowed_audiences           = toset(microsoft_v2.value.allowed_audiences)
-          login_scopes                = toset(microsoft_v2.value.login_scopes)
+          client_id                  = microsoft_v2.value.client_id
+          client_secret_setting_name = microsoft_v2.value.client_secret_setting_name
+          allowed_audiences          = toset(microsoft_v2.value.allowed_audiences)
+          login_scopes               = toset(microsoft_v2.value.login_scopes)
         }
       }
 
       dynamic "twitter_v2" {
         for_each = auth_settings_v2.value.twitter_v2 != null ? [auth_settings_v2.value.twitter_v2] : []
         content {
-          consumer_key                = twitter_v2.value.consumer_key
+          consumer_key                 = twitter_v2.value.consumer_key
           consumer_secret_setting_name = twitter_v2.value.consumer_secret_setting_name
         }
       }
 
-  dynamic "login" {
-    for_each = auth_settings_v2.value.login != null ? [auth_settings_v2.value.login] : []
+      dynamic "login" {
+        for_each = auth_settings_v2.value.login != null ? [auth_settings_v2.value.login] : []
 
-    content {
-      logout_endpoint                 = login.value.logout_endpoint
-      token_store_enabled             = login.value.token_store_enabled
-      token_refresh_extension_time    = login.value.token_refresh_extension_time
-      token_store_path                = login.value.token_store_path
-      token_store_sas_setting_name    = login.value.token_store_sas_setting_name
-      preserve_url_fragments_for_logins = login.value.preserve_url_fragments_for_logins
-      allowed_external_redirect_urls  = toset(login.value.allowed_external_redirect_urls)
-      cookie_expiration_convention    = login.value.cookie_expiration_convention
-      cookie_expiration_time          = login.value.cookie_expiration_time
-      validate_nonce                  = login.value.validate_nonce
-      nonce_expiration_time           = login.value.nonce_expiration_time
+        content {
+          logout_endpoint                   = login.value.logout_endpoint
+          token_store_enabled               = login.value.token_store_enabled
+          token_refresh_extension_time      = login.value.token_refresh_extension_time
+          token_store_path                  = login.value.token_store_path
+          token_store_sas_setting_name      = login.value.token_store_sas_setting_name
+          preserve_url_fragments_for_logins = login.value.preserve_url_fragments_for_logins
+          allowed_external_redirect_urls    = toset(login.value.allowed_external_redirect_urls)
+          cookie_expiration_convention      = login.value.cookie_expiration_convention
+          cookie_expiration_time            = login.value.cookie_expiration_time
+          validate_nonce                    = login.value.validate_nonce
+          nonce_expiration_time             = login.value.nonce_expiration_time
+        }
       }
     }
   }
-}
 
 
   dynamic "site_config" {
@@ -463,4 +463,16 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_function_app_identities"></a> [function\_app\_identities](#output\_function\_app\_identities) | The identities of the Storage Accounts. |
+| <a name="output_function_apps_custom_domain_verification_id"></a> [function\_apps\_custom\_domain\_verification\_id](#output\_function\_apps\_custom\_domain\_verification\_id) | The custom domain verification IDs of the Linux Function Apps. |
+| <a name="output_function_apps_default_hostnames"></a> [function\_apps\_default\_hostnames](#output\_function\_apps\_default\_hostnames) | The default hostnames of the Linux Function Apps. |
+| <a name="output_function_apps_identity_principal_ids"></a> [function\_apps\_identity\_principal\_ids](#output\_function\_apps\_identity\_principal\_ids) | The Principal IDs associated with the Managed Service Identities of the Linux Function Apps. |
+| <a name="output_function_apps_identity_tenant_ids"></a> [function\_apps\_identity\_tenant\_ids](#output\_function\_apps\_identity\_tenant\_ids) | The Tenant IDs associated with the Managed Service Identities of the Linux Function Apps. |
+| <a name="output_function_apps_outbound_ip_addresses"></a> [function\_apps\_outbound\_ip\_addresses](#output\_function\_apps\_outbound\_ip\_addresses) | The outbound IP addresses of the Linux Function Apps. |
+| <a name="output_function_apps_possible_outbound_ip_addresses"></a> [function\_apps\_possible\_outbound\_ip\_addresses](#output\_function\_apps\_possible\_outbound\_ip\_addresses) | The possible outbound IP addresses of the Linux Function Apps. |
+| <a name="output_function_apps_site_credentials"></a> [function\_apps\_site\_credentials](#output\_function\_apps\_site\_credentials) | The site credentials for the Linux Function Apps. |
+| <a name="output_function_vnet_integration_ids"></a> [function\_vnet\_integration\_ids](#output\_function\_vnet\_integration\_ids) | The IDs of the App Service Virtual Network Swift Connections. |
+| <a name="output_linux_function_apps_ids"></a> [linux\_function\_apps\_ids](#output\_linux\_function\_apps\_ids) | The IDs of the Linux Function Apps. |
+| <a name="output_service_plans_ids"></a> [service\_plans\_ids](#output\_service\_plans\_ids) | The IDs of the Service Plans. |
