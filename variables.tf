@@ -17,6 +17,8 @@ variable "linux_function_apps" {
     daily_memory_time_quota       = optional(number)
     enabled                       = optional(bool)
     functions_extension_version   = optional(string)
+    identity_type                 = optional(string)
+    identity_ids                  = optional(list(string))
     storage_account_name          = optional(string)
     storage_account_access_key    = optional(string)
     storage_key_vault_secret_id   = optional(string)

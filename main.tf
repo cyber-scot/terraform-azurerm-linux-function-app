@@ -29,6 +29,31 @@ resource "azurerm_linux_function_app" "function_app" {
   storage_key_vault_secret_id   = each.value.storage_account_name == null ? each.value.storage_key_vault_secret_id : null
   storage_uses_managed_identity = each.value.storage_account_access_key == null ? each.value.storage_uses_managed_identity : null
 
+
+  dynamic "identity" {
+    for_each = each.value.identity_type == "SystemAssigned" ? [each.value.identity_type] : []
+    content {
+      type = each.value.identity_type
+    }
+  }
+
+  dynamic "identity" {
+    for_each = each.value.identity_type == "SystemAssigned, UserAssigned" ? [each.value.identity_type] : []
+    content {
+      type         = each.value.identity_type
+      identity_ids = try(each.value.identity_ids, [])
+    }
+  }
+
+
+  dynamic "identity" {
+    for_each = each.value.identity_type == "UserAssigned" ? [each.value.identity_type] : []
+    content {
+      type         = each.value.identity_type
+      identity_ids = length(try(each.value.identity_ids, [])) > 0 ? each.value.identity_ids : []
+    }
+  }
+
   dynamic "storage_account" {
     for_each = each.value.storage_account != null ? [each.value.storage_account] : []
 
