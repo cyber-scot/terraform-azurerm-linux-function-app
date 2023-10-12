@@ -1,14 +1,3 @@
-output "function_app_identities" {
-  description = "The identities of the Storage Accounts."
-  value = {
-    for key, value in azurerm_linux_function_app.function_app : key => {
-      type         = try(value.identity.0.type, null)
-      principal_id = try(value.identity.0.principal_id, null)
-      tenant_id    = try(value.identity.0.tenant_id, null)
-    }
-  }
-}
-
 output "function_apps_custom_domain_verification_id" {
   description = "The custom domain verification IDs of the Linux Function Apps."
   value       = { for app in azurerm_linux_function_app.function_app : app.name => app.custom_domain_verification_id }
