@@ -51,22 +51,13 @@ module "sa" {
         virtual_network_subnet_ids = [module.network.subnets_ids["sn1-${module.network.vnet_name}"]]
       }
     },
-    {
-      name     = "sa${var.short}${var.loc}${var.env}02"
-      rg_name  = module.rg.rg_name
-      location = module.rg.rg_location
-      tags     = module.rg.rg_tags
-
-      shared_access_keys_enabled = false
-      generate_sas_token         = false
-    },
   ]
 }
 
 
 
 module "fnc_app" {
-  source = "../../"
+  source = "cyber-scot/linux-function-app/azurerm"
   linux_function_apps = [
     {
       name                  = "fnc-${var.short}-${var.loc}-${var.env}-01"

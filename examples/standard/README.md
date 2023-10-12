@@ -53,22 +53,13 @@ module "sa" {
         virtual_network_subnet_ids = [module.network.subnets_ids["sn1-${module.network.vnet_name}"]]
       }
     },
-    {
-      name     = "sa${var.short}${var.loc}${var.env}02"
-      rg_name  = module.rg.rg_name
-      location = module.rg.rg_location
-      tags     = module.rg.rg_tags
-
-      shared_access_keys_enabled = false
-      generate_sas_token         = false
-    },
   ]
 }
 
 
 
 module "fnc_app" {
-  source = "../../"
+  source = "cyber-scot/linux-function-app/azurerm"
   linux_function_apps = [
     {
       name                  = "fnc-${var.short}-${var.loc}-${var.env}-01"
@@ -112,7 +103,7 @@ No requirements.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_fnc_app"></a> [fnc\_app](#module\_fnc\_app) | ../../ | n/a |
+| <a name="module_fnc_app"></a> [fnc\_app](#module\_fnc\_app) | cyber-scot/linux-function-app/azurerm | n/a |
 | <a name="module_network"></a> [network](#module\_network) | cyber-scot/network/azurerm | n/a |
 | <a name="module_rg"></a> [rg](#module\_rg) | cyber-scot/rg/azurerm | n/a |
 | <a name="module_sa"></a> [sa](#module\_sa) | cyber-scot/storage-account/azurerm | n/a |
